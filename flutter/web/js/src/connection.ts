@@ -239,7 +239,9 @@ export default class Connection {
       if (msg?.hash) {
         this._hash = msg?.hash;
         if (!this._password)
+        {
           this.msgbox("input-password", "Password Required", "");
+        }
         this.login();
       } else if (msg?.test_delay) {
         const test_delay = msg?.test_delay;
@@ -436,13 +438,13 @@ export default class Connection {
     password?: Uint8Array
   }) {
     if (info?.password) {
-      const salt = this._hash?.salt;
-      let p = hash([info.password, salt!]);
-      this._password = p;
-      const challenge = this._hash?.challenge;
-      p = hash([p, challenge!]);
-      this.msgbox("connecting", "Connecting...", "Logging in...");
-      this._sendLoginMessage({ os_login: info.os_login, password: p });
+        const salt = this._hash?.salt;
+        let p = hash([info.password, salt!]);
+        this._password = p;
+        const challenge = this._hash?.challenge;
+        p = hash([p, challenge!]);
+        this.msgbox("connecting", "Connecting...", "Logging in...");
+        this._sendLoginMessage({ os_login: info.os_login, password: p });
     } else {
       let p = this._password;
       if (p) {
@@ -531,7 +533,7 @@ export default class Connection {
       var tm = new Date().getTime();
       var i = 0;
       const n = vf.vp9s?.frames.length;
-      vf.vp9s.frames.forEach((f) => {
+      vf.vp9s.frames.forEach((f: any) => {
         dec.processFrame(f.data.slice(0).buffer, (ok: any) => {
           i++;
           if (i == n) this.sendVideoReceived();
