@@ -1130,7 +1130,7 @@ class ImageModel with ChangeNotifier {
         await initializeCursorAndCanvas(parent.target!);
       }
       if (parent.target?.ffiModel.isPeerAndroid ?? false) {
-        bind.sessionSetViewStyle(sessionId: sessionId, value: 'adaptive');
+        bind.sessionSetViewStyle(sessionId: sessionId, value: kRemoteViewStyleAdaptive);
         parent.target?.canvasModel.updateViewStyle();
       }
     }
