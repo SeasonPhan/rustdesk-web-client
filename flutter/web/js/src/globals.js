@@ -646,6 +646,7 @@ function getRecentPeers() {
     if (!id) continue;
     const tm = value['tm'];
     const info = value['info'];
+    if (!tm || !info) continue;
     const cardInfo = {
       id: id,
       username: info['username'] || '',
@@ -653,7 +654,7 @@ function getRecentPeers() {
       platform: info['platform'] || '',
       alias: value.alias || '',
     };
-    if (!tm || !cardInfo) continue;
+    if (!cardInfo) continue;
     peers.push([tm, id, cardInfo]);
   }
   return peers.sort().reverse().map(x => x[2]);
