@@ -33,11 +33,11 @@ class ConnectionPage extends StatefulWidget implements PageShape {
   final appBarActions = isWeb ? <Widget>[const WebMenu()] : <Widget>[];
 
   @override
-  State<ConnectionPage> createState() => _ConnectionPageState();
+  State<ConnectionPage> createState() => ConnectionPageState();
 }
 
 /// State for the connection page.
-class _ConnectionPageState extends State<ConnectionPage> {
+class ConnectionPageState extends State<ConnectionPage> {
   /// Controller for the id input bar.
   final _idController = IDTextEditingController();
   final RxBool _idEmpty = true.obs;
@@ -100,6 +100,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
   void onConnect() {
     var id = _idController.id;
     connect(context, id);
+  }
+
+  /// Function used by PassArgumentsScreen
+  /// Connects to the selected peer, with password
+  void onConnectFull(String id, String pw) {
+    connect(context, id, password: pw, isSharedPassword: false);
   }
 
   /// UI for software update.

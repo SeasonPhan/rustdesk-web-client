@@ -191,11 +191,11 @@ class ConnectionPage extends StatefulWidget {
   const ConnectionPage({Key? key}) : super(key: key);
 
   @override
-  State<ConnectionPage> createState() => _ConnectionPageState();
+  State<ConnectionPage> createState() => ConnectionPageState();
 }
 
 /// State for the connection page.
-class _ConnectionPageState extends State<ConnectionPage>
+class ConnectionPageState extends State<ConnectionPage>
     with SingleTickerProviderStateMixin, WindowListener {
   /// Controller for the id input bar.
   final _idController = IDTextEditingController();

@@ -63,6 +63,28 @@ class _RemotePageState extends State<RemotePage> {
       password: widget.password,
       isSharedPassword: widget.isSharedPassword,
     );
+    
+    //
+    // Force login if a password is defined (received from PassArgumentsScreen)
+    //
+    if(widget.password != null)
+    {
+      gFFI.login(
+        '', //osUsername,
+        '', //osPassword,
+        sessionId, //sessionId,
+        widget.password!, //password,
+        false, //rememberPassword,
+      );
+    }
+
+    //
+    // Use adaptive scale by default
+    //    
+    bind
+        .sessionSetViewStyle(sessionId: sessionId, value: kRemoteViewStyleAdaptive)
+        .then((_) => gFFI.canvasModel.updateViewStyle());
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
       gFFI.dialogManager

@@ -161,3 +161,39 @@ class WebHomePage extends StatelessWidget {
     );
   }
 }
+
+class PassArgumentsScreen extends StatelessWidget {
+  late var connectionPage;
+  GlobalKey<ConnectionPageState> _connKey = GlobalKey();
+  late Map<String, String> queryParameters;
+  static const routeName = '/connect';
+
+  PassArgumentsScreen(Map<String, String> queryParameters){
+    this.queryParameters = queryParameters;
+    connectionPage = ConnectionPage(key: _connKey);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    // Immediately 
+    Future.delayed(Duration.zero,
+    (){
+      String identifier = queryParameters['id'] ?? '';
+      String password = queryParameters['pw'] ?? '';
+      bool currentStateNotNull = _connKey.currentState != null;
+
+      _connKey.currentState!.onConnectFull(identifier, password);
+    });
+
+    return Scaffold(
+      // backgroundColor: MyTheme.grayBg,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("RustDesk${isWeb ? " (Connect) " : ""}"),
+        actions: connectionPage.appBarActions,
+      ),
+      body: connectionPage,
+    );
+  }
+}

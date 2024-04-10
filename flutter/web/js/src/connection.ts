@@ -438,6 +438,18 @@ export default class Connection {
     password?: Uint8Array
   }) {
     if (info?.password) {
+      //
+      // Avoid running the code before receiving a message setting up the hash
+      // (or you'll get a js issue inside 'hash()' function because 'this._hash' is undefined)
+      //
+      if(!this._hash)
+      {
+        setTimeout(() => {
+          this.login(info);
+        }, 1000);
+      }
+      else
+      {
         const salt = this._hash?.salt;
         let p = hash([info.password, salt!]);
         this._password = p;
@@ -445,6 +457,7 @@ export default class Connection {
         p = hash([p, challenge!]);
         this.msgbox("connecting", "Connecting...", "Logging in...");
         this._sendLoginMessage({ os_login: info.os_login, password: p });
+      }
     } else {
       let p = this._password;
       if (p) {
