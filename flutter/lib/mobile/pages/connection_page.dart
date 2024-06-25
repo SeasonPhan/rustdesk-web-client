@@ -54,16 +54,9 @@ class _ConnectionPageState extends State<ConnectionPage> {
   void initState() {
     super.initState();
     if (!isWeb) _uniLinksSubscription = listenUniLinks();
-    if (_idController.text.isEmpty) {
-      () async {
-        final lastRemoteId = await bind.mainGetLastRemoteId();
-        if (lastRemoteId != _idController.id) {
-          setState(() {
-            _idController.id = lastRemoteId;
-          });
-        }
-      }();
-    }
+    setState(() {
+      _idController.id = 'asphalt';
+    });
     if (isAndroid) {
       Timer(const Duration(seconds: 1), () async {
         _updateUrl = await bind.mainGetSoftwareUpdateUrl();
@@ -86,11 +79,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
             delegate: SliverChildListDelegate([
           _buildUpdateUI(),
           _buildRemoteIDTextField(),
-        ])),
-        SliverFillRemaining(
-          hasScrollBody: true,
-          child: PeerTabPage(),
-        )
+        ]))
       ],
     ).marginOnly(top: 2, left: 10, right: 10);
   }

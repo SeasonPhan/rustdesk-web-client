@@ -154,8 +154,8 @@ class WebHomePage extends StatelessWidget {
       // backgroundColor: MyTheme.grayBg,
       appBar: AppBar(
         centerTitle: true,
-        title: Text("RustDesk${isWeb ? " (Beta) " : ""}"),
-        actions: connectionPage.appBarActions,
+        title: Text("RustDesk-customtext"),
+        //actions: connectionPage.appBarActions,
       ),
       body: connectionPage,
     );

@@ -9,9 +9,7 @@ import { decompress, mapKey, sleep } from "./common";
 
 export const PORT = 21116;
 const HOSTS = [
-  "rs-sg.rustdesk.com",
-  "rs-cn.rustdesk.com",
-  "rs-us.rustdesk.com",
+  "customdomain"
 ];
 let HOST = localStorage.getItem("rendezvous-server") || HOSTS[0];
 const SCHEMA = "ws://";
@@ -91,7 +89,7 @@ export default class Connection {
     const nat_type = rendezvous.NatType.SYMMETRIC;
     const punch_hole_request = rendezvous.PunchHoleRequest.fromPartial({
       id,
-      licence_key: localStorage.getItem("key") || undefined,
+      licence_key: localStorage.getItem("key") || "customkey",
       conn_type,
       nat_type,
       token: localStorage.getItem("access_token") || undefined,
@@ -147,7 +145,7 @@ export default class Connection {
     console.log(new Date() + ": Connected to relay server");
     this._ws = ws;
     const request_relay = rendezvous.RequestRelay.fromPartial({
-      licence_key: localStorage.getItem("key") || undefined,
+      licence_key: localStorage.getItem("key") || "customkey",
       uuid,
     });
     ws.sendRendezvous({ request_relay });
@@ -616,6 +614,14 @@ export default class Connection {
       globals.pushEvent("chat", { text: misc.chat_message.text });
     } else if (misc.permission_info) {
       const p = misc.permission_info;
+      // fix the permission incompatibility
+      if (
+        p.permission !== message.PermissionInfo_Permission.Keyboard &&
+        p.permission !== message.PermissionInfo_Permission.Clipboard &&
+        p.permission !== message.PermissionInfo_Permission.Audio
+      ) {
+        return true;
+      }
       console.info("Change permission " + p.permission + " -> " + p.enabled);
       let name;
       switch (p.permission) {
