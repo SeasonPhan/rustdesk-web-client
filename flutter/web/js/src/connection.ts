@@ -9,10 +9,10 @@ import { decompress, mapKey, sleep } from "./common";
 
 export const PORT = 21116;
 const HOSTS = [
-  "customdomain"
+  "customserveraddress"
 ];
 let HOST = localStorage.getItem("rendezvous-server") || HOSTS[0];
-const SCHEMA = "ws://";
+const SCHEMA = "wss://";
 
 type MsgboxCallback = (type: string, title: string, text: string, link: string) => void;
 type DrawCallback = (display: number, data: Uint8Array) => void;
@@ -156,7 +156,7 @@ export default class Connection {
 
   async secure(pk: Uint8Array | undefined) {
     if (pk) {
-      const RS_PK = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
+      const RS_PK = "customkey";
       try {
         pk = await globals.verify(pk, localStorage.getItem("key") || RS_PK);
         if (pk) {
