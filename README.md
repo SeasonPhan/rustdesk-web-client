@@ -1,4 +1,135 @@
+(Brace yourself, messy instructions written with my half-baked English ahead!)
 
+I cant run docker, so this is a guide to get web client + signal+relay server + secure connection through traefik up and running
+
+
+You will need to:
+1 - build the web client using provided docker file in fix-build branch, after that, pull the compiled files out
+(my version of web client have some element removed, you can check the commit history and re-add those removed parts back yourself
+Also, you can hardcode your own public keys, server address, just check the commit history of this repo)
+download this branch fix-build
+navigate to the foler that has the DOCKERFILE, build the docker image: docker build -t rustweb .
+create and run the docker container from the image: docker run -d -p 5000:5000 --name rustweb_container rustweb
+pull the files from the container: docker cp rustweb_container:/app/build/web/  /folder/path/that/you/want/compiled_rustweb/
+after done, prune the image/container/everything/.. (me and my poor server hate docker)
+
+to run the web client, install python and run this command inside the client folder: python3 -u -m http.server 5001 
+(you can change the port 5001 to whatever you want. You do not need to expose that port on your router since Traefik will handle that)
+
+2 - build the modified rustdesk server with websocket ports changed
+Fork rust-desk-server repo and modify the 2 files: 
+src/relay_server.rs
+src/rendezvous_server.rs
+where it say "port + 2;" change that to "port + 100" (remember this value, you will need it later for the Traefik config)
+save and use github action to build the server
+Wait for the process to finish and download it and run
+
+
+3 - setup traefik with your own SSL certificate
+here are some free options
+https://lowendspirit.com/discussion/5838/what-are-the-free-ssl-certificate-options
+https://poshac.me/docs/v4/Guides/ACME-CA-Comparison/
+
+You are on your own get traefik up and running, here is my static config for traefik v3:
+
+log:
+  level: DEBUG
+
+#expose all standard rustdesk server ports and 80, 443 port on your router
+#we only need traefik to manage 4 ports below
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+  rd-tcp-21118:
+    address: ":21118"
+  rd-tcp-21119:
+    address: ":21119"
+
+providers:
+  file:
+    filename: "/root/traefik/dynamic/tls.yml"
+    watch: true
+
+
+
+And here is my dynamic config:
+
+http:
+  routers:
+    rustdesk-web-client:
+      rule: "Host(`your.domain.or.server.address`)"
+      entryPoints:
+        - websecure
+      service: rustdesk-web-client
+      tls: {}
+
+  services:
+    rustdesk-web-client:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:5001" #this is your web client address
+tcp:
+  routers:
+    rustdesk-signal-server-21118:
+      entryPoints:
+        - rd-tcp-21118
+      service: rustdesk-signal-server-21118
+      rule: "HostSNI(`*`)"
+      tls: 
+        passthrough: false
+    rustdesk-relay-server-21119:
+      entryPoints:
+        - rd-tcp-21119
+      service: rustdesk-relay-server-21119
+      rule: "HostSNI(`*`)"
+      tls:
+        passthrough: false
+
+  services:
+    rustdesk-signal-server-21118:
+      loadBalancer:
+        servers:
+          - address: "localhost:21216" #remeber that i put +100 for the ports in step 2? By default Rustdesk server will use the original 21116 for signal server (hbbs) and 21119 for relay server (hbbr), +100 means these servers will listen to port 21216 and 21217 instead of the origianl 21118 and 21119
+    rustdesk-relay-server-21119:
+      loadBalancer:
+        servers:
+          - address: "localhost:21217"
+
+#setup your certificates here
+tls:
+  certificates:
+    - certFile: /root/traefik/cert/asphalt.tinytech.top.crt
+      keyFile: /root/traefik/cert/asphalt.tinytech.top.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /root/traefik/cert/asphalt.tinytech.top.crt
+        keyFile: /root/traefik/cert/asphalt.tinytech.top.key
+
+
+
+4 - run Traefik and enjoy your https wss goodness!
+
+
+
+
+
+
+
+
+
+
+
+
+
+ORIGINAL README:
 # RustDesk Web Client
 
 Fork aiming to improve both **building process and features of the Web Client** of [RustDesk](https://github.com/rustdesk/rustdesk) (_An open-source remote desktop, and alternative to TeamViewer_).
